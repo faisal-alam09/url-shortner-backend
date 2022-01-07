@@ -1,7 +1,11 @@
 module.exports = app => {
     // var router = require("express").Router();
 
-    app.get("/post" , (req , res) => {
+    app.get("/api" , (req , res) => {
+        res.json({message:"This is a Rest api for url-shortner-react-app"})
+    });
+
+    app.get("/api/post" , (req , res) => {
         res.json({message:"Post successfull.."})
     });
 };
