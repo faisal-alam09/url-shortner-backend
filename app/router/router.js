@@ -5,7 +5,7 @@ module.exports = app => {
         res.json({message:"This is a Rest api for url-shortner-react-app"})
     });
 
-    app.get("/api/post" , (req , res) => {
+    app.get("/api/registerUrl" , (req , res) => {
         res.json({message:"Post successfull.."})
     });
 };
