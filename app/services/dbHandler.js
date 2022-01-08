@@ -1,17 +1,7 @@
-// Using Node.js `require()`
 const mongoose = require('mongoose');
 
-// // Using ES6 imports
-// import mongoose from 'mongoose';
-
-mongoose.connect('mongodb://localhost:27017', { useNewUrlParser: true });
+mongoose.connect('mongodb://localhost:27017/test', { useNewUrlParser: true });
 var db = mongoose.connection;
-
-// User model
-// const User = mongoose.model('test_collection', {
-//     main_url: String ,
-//     target_url: String 
-// });
 
 db.on('error', console.error.bind(console, 'connection error:'));
 
@@ -42,11 +32,30 @@ var userSchema = new mongoose.Schema({
 
 Table = mongoose.model('test_collection', userSchema);
 
-Table.find().then(function (users) {
-    console.log("Getting data!!")
-    console.log(users);
-});
+async function registerUrl(url , res) {
+    var urlData = await Table.find({main_url:url}).then(function (data) {
+        console.log("Getting data!!");
+        if (data.length != 0) {
+            console.log("Got : ",data);
+        } else {
+            console.log("NO data found , registering new Url");
+        }
+        return data
+    });
+    res.json({message:urlData});
+}
 
-// exports.test = function (req, res) {
-//     res.render('test');
-// };
+async function findAll(url , res) {
+    var data = await Table.find().then(function (users) {
+        return users;
+    });
+    res.json({message:data});
+}
+
+module.exports = {
+    getAll: (req,res) => {
+        console.log(req.params , req.query);
+        registerUrl(req.query.url , res);
+    }
+}
+
