@@ -7,22 +7,6 @@ db.on('error', console.error.bind(console, 'connection error:'));
 
 db.once('open', function callback() {
     console.log('Connected to mongo server.');
-    //trying to get collection names
-    // mongoose.connection.db.listCollections().toArray(function (err, names) {
-    //     console.log(names); // [{ name: 'dbname.myCollection' }]
-    //     module.exports.Collection = names;
-    // });
-
-    // User.find({}).then(function (err , users) {
-    //     // res.send(users);
-    //     console.log(users);
-    // });
-    // async function getAll() {
-    //     const all = await User.find();
-    //     console.log(all);
-    // }
-    //   const all = await Test_collection.find();
-    //   console.log(all);
 });
 
 var userSchema = new mongoose.Schema({
@@ -32,30 +16,54 @@ var userSchema = new mongoose.Schema({
 
 Table = mongoose.model('test_collection', userSchema);
 
-async function registerUrl(url , res) {
-    var urlData = await Table.find({main_url:url}).then(function (data) {
-        console.log("Getting data!!");
-        if (data.length != 0) {
-            console.log("Got : ",data);
-        } else {
-            console.log("NO data found , registering new Url");
-        }
-        return data
-    });
-    res.json({message:urlData});
+function generateNewSubUrl() {
+    var randomSubUrl = ((Math.random() * 10000 + 1) / 10000).toString(36).substring(3); //10-letters random unique url
+    return randomSubUrl;
 }
 
-async function findAll(url , res) {
-    var data = await Table.find().then(function (users) {
-        return users;
+async function registerUrltoDB( url, res) {
+    var urlData = await Table.find({ main_url: url }).then(function (data) {
+        if (data.length != 0) {
+            return data
+        } else {
+            //Register a new url...
+            var subUrl = generateNewSubUrl();
+            var newData = new Table({ main_url:url , target_url:subUrl });
+            newData.save( function (err , newData) {
+                if (err) console.log( 'Error ' , err);
+            } )
+            return newData
+        }
     });
-    res.json({message:data});
+    res.json({ message: urlData });
+}
+
+// async function findAll(url, res) {
+//     var data = await Table.find().then(function (users) {
+//         return users;
+//     });
+//     res.json({ message: data });
+// }
+
+async function getTarget( url  , res) {
+    url = url.split("/")
+    url = url[url.length - 1]
+    var output = await Table.find({ target_url: url }).then(function (data) {
+        if (data.length != 0) {
+            return data
+        } else {
+            return 'invalid'
+        }
+    });
+    res.json({message: output});
 }
 
 module.exports = {
-    getAll: (req,res) => {
-        console.log(req.params , req.query);
-        registerUrl(req.query.url , res);
+    registerUrl: (req, res) => {
+        registerUrltoDB(req.query.url, res);
+    },
+    findTargetUrl: (req , res ) => {
+        getTarget( req.query.target_url , res );
     }
 }
 

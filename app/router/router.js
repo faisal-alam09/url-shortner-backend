@@ -7,5 +7,6 @@ module.exports = app => {
         res.json({message:"This is a Rest api for url-shortner-react-app"})
     });
 
-    app.get("/api/registerUrl" , dbService.getAll);
+    app.get("/api/registerUrl" , dbService.registerUrl);
+    app.get("/api/findTargetUrl" , dbService.findTargetUrl ); //returns ('invalid' {keyword} or the target_url)
 };
