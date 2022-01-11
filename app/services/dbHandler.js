@@ -1,6 +1,9 @@
+
+var config = require('../config');
+
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost:27017/test', { useNewUrlParser: true });
+mongoose.connect(config.mongodbString, { useNewUrlParser: true });
 var db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -12,9 +15,9 @@ db.once('open', function callback() {
 var userSchema = new mongoose.Schema({
     main_url: 'string',
     target_url: 'string'
-}, { collection: 'test_collection' });
+}, { collection: config.dbCollection });
 
-Table = mongoose.model('test_collection', userSchema);
+Table = mongoose.model(config.dbCollection, userSchema);
 
 function generateNewSubUrl() {
     var randomSubUrl = ((Math.random() * 10000 + 1) / 10000).toString(36).substring(3); //10-letters random unique url
@@ -24,7 +27,7 @@ function generateNewSubUrl() {
 async function registerUrltoDB( url, res) {
     var urlData = await Table.find({ main_url: url }).then(function (data) {
         if (data.length != 0) {
-            return data
+            return data[0]
         } else {
             //Register a new url...
             var subUrl = generateNewSubUrl();
@@ -35,26 +38,21 @@ async function registerUrltoDB( url, res) {
             return newData
         }
     });
+    // console.log("Output :",urlData );
     res.json({ message: urlData });
 }
-
-// async function findAll(url, res) {
-//     var data = await Table.find().then(function (users) {
-//         return users;
-//     });
-//     res.json({ message: data });
-// }
 
 async function getTarget( url  , res) {
     url = url.split("/")
     url = url[url.length - 1]
     var output = await Table.find({ target_url: url }).then(function (data) {
         if (data.length != 0) {
-            return data
+            return data[0]
         } else {
             return 'invalid'
         }
     });
+    // console.log("Output Data ",output );
     res.json({message: output});
 }
 
