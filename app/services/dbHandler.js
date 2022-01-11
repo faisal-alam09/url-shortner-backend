@@ -6,10 +6,10 @@ const mongoose = require('mongoose');
 mongoose.connect(config.mongodbString, { useNewUrlParser: true });
 var db = mongoose.connection;
 
-db.on('error', console.error.bind(console, 'connection error:'));
+// db.on('error', console.error.bind(console, 'connection error:'));
 
 db.once('open', function callback() {
-    console.log('Connected to mongo server.');
+    // console.log('Connected to mongo server.');
 });
 
 var userSchema = new mongoose.Schema({
@@ -33,7 +33,7 @@ async function registerUrltoDB( url, res) {
             var subUrl = generateNewSubUrl();
             var newData = new Table({ main_url:url , target_url:subUrl });
             newData.save( function (err , newData) {
-                if (err) console.log( 'Error ' , err);
+                // if (err) console.log( 'Error ' , err);
             } )
             return newData
         }
