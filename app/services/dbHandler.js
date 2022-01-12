@@ -24,25 +24,28 @@ function generateNewSubUrl() {
     return randomSubUrl;
 }
 
-async function registerUrltoDB( url, res) {
+async function registerUrltoDB(url, res) {
     var urlData = await Table.find({ main_url: url }).then(function (data) {
         if (data.length != 0) {
             return data[0]
         } else {
             //Register a new url...
             var subUrl = generateNewSubUrl();
-            var newData = new Table({ main_url:url , target_url:subUrl });
-            newData.save( function (err , newData) {
+            var newData = new Table({ main_url: url, target_url: subUrl });
+            newData.save(function (err, newData) {
                 // if (err) console.log( 'Error ' , err);
-            } )
+            })
             return newData
         }
     });
     // console.log("Output :",urlData );
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    // next();
     res.json({ message: urlData });
 }
 
-async function getTarget( url  , res) {
+async function getTarget(url, res) {
     url = url.split("/")
     url = url[url.length - 1]
     var output = await Table.find({ target_url: url }).then(function (data) {
@@ -53,15 +56,18 @@ async function getTarget( url  , res) {
         }
     });
     // console.log("Output Data ",output );
-    res.json({message: output});
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    // next();
+    res.json({ message: output });
 }
 
 module.exports = {
     registerUrl: (req, res) => {
         registerUrltoDB(req.query.url, res);
     },
-    findTargetUrl: (req , res ) => {
-        getTarget( req.query.target_url , res );
+    findTargetUrl: (req, res) => {
+        getTarget(req.query.target_url, res);
     }
 }
 
