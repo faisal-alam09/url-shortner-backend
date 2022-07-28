@@ -7,6 +7,7 @@ mongoose.connect(config.mongodbString, { useNewUrlParser: true });
 var db = mongoose.connection;
 
 // db.on('error', console.error.bind(console, 'connection error:'));
+// TEST COMMENT
 
 db.once('open', function callback() {
     // console.log('Connected to mongo server.');
